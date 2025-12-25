@@ -1,0 +1,6 @@
+streamlit
+groq
+fpdf
+python-dotenv
+google-auth-oauthlib
+google-auth-httplib2
