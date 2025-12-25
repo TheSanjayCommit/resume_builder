@@ -1,6 +1,11 @@
 import streamlit as st
 import google_auth_oauthlib.flow
-from googleapiclient.discovery import build
+try:
+    from googleapiclient.discovery import build
+    GOOGLE_API_CLIENT_AVAILABLE = True
+except ImportError:
+    build = None
+    GOOGLE_API_CLIENT_AVAILABLE = False
 import os
 
 # Configuration (Safely loaded from secrets)
@@ -40,6 +45,10 @@ def get_user_email(code):
         flow.fetch_token(code=code)
         credentials = flow.credentials
         
+        if not GOOGLE_API_CLIENT_AVAILABLE:
+            st.error("Google Sign-In is currently unavailable due to a missing dependency (google-api-python-client).")
+            return None
+
         # Verify and get user info
         service = build('oauth2', 'v2', credentials=credentials)
         user_info = service.userinfo().get().execute()
