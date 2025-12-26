@@ -1,19 +1,9 @@
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Streamlit
-.streamlit/secrets.toml
-
-# Virtualenv
+# Secrets
+.env
 venv/
-env/
+__pycache__/
+.streamlit/secrets.toml
+firebase_key.json
 
-# IDE
-.vscode/
-.idea/
-
-# Resume App specific
-resume_app.db
+cloud_secrets.toml.txt

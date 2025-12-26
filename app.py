@@ -27,7 +27,7 @@ from utils.resume_data import ResumeBuilder
 from utils.ai_engine import AIEngine
 from utils.builder_flow import render_builder
 from utils.pdf_generator import ResumeGenerator
-from utils.auth import get_auth_url, get_user_email
+from utils.auth import get_login_ui, verify_token
 import time
 
 def main():
@@ -70,38 +70,24 @@ def main():
         st.header("Welcome to your Career Assistant")
         st.write("We'll help you build an ATS-optimized resume in minutes.")
         
-        # Check for auth code in URL (Callback handling)
-        if "code" in st.query_params:
-            with st.spinner("Authenticating..."):
-                code = st.query_params["code"]
-                user_email = get_user_email(code)
-                if user_email:
-                    st.session_state.email = user_email
+        # Check for Firebase token in URL
+        if "firebase_token" in st.query_params:
+            with st.spinner("Verifying identity..."):
+                token = st.query_params["firebase_token"]
+                user_decoded = verify_token(token)
+                if user_decoded:
+                    st.session_state.email = user_decoded.get('email')
                     st.session_state.page = 'role_selection'
                     # Clear query params to prevent re-auth loops
                     st.query_params.clear()
                     st.rerun()
+                else:
+                    st.error("Authentication failed. Please try again.")
         
         # Show Sign-In Button if not logged in
         if 'email' not in st.session_state:
-            auth_url = get_auth_url()
-            st.markdown(f'''
-                <a href="{auth_url}" target="_self">
-                    <button style="
-                        background-color: #4285F4;
-                        color: white;
-                        padding: 12px 24px;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 16px;
-                        font-family: Roboto, sans-serif;
-                        width: 100%;
-                    ">
-                        Sign in with Google
-                    </button>
-                </a>
-            ''', unsafe_allow_html=True)
+            login_html = get_login_ui()
+            st.components.v1.html(login_html, height=100)
             
             st.markdown("---")
             st.caption("Or continue as guest (Data might not be saved properly)")
